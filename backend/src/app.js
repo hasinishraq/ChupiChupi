@@ -11,12 +11,19 @@ const app = express();
 app.set("trust proxy", 1);
 
 const corsOrigins = env.corsOrigin.split(",").map((origin) => origin.trim());
-const corsOptions = corsOrigins.includes("*")
-  ? { origin: "*" }
-  : { origin: corsOrigins, credentials: true };
+const corsOptions = {
+  methods: ["GET", "HEAD", "PUT", "PATCH", "POST", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With", "Accept"],
+  optionsSuccessStatus: 204,
+  maxAge: 86400,
+  ...(corsOrigins.includes("*")
+    ? { origin: "*" }
+    : { origin: corsOrigins, credentials: true }),
+};
 
 app.use(helmet());
 app.use(cors(corsOptions));
+app.options("*", cors(corsOptions));
 app.use(express.json({ limit: "10kb" }));
 app.use(express.urlencoded({ extended: false }));
 
